@@ -3,34 +3,56 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { WalletTransaction } from './walletTransaction.entity';
 
+@Entity()
 export class Wallet extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.wallet, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
-  public userId: User;
+  public user: User;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   public virtualAcctNo: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   public virtualAcctBankName: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   public virtualAcctNAme: string;
 
-  @Column()
+  @Column({
+    default: 0,
+  })
   public balance: number;
 
-  @Column()
+  @Column({
+    default: 0,
+  })
   public ledgerBalance: number;
+
+  @OneToMany(
+    () => WalletTransaction,
+    (walletTransaction) => walletTransaction.wallet,
+  )
+  public transactions: WalletTransaction;
 
   @CreateDateColumn()
   public createdAt: Date;

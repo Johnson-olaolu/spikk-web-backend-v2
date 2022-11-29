@@ -9,7 +9,8 @@ import { MailModule } from './mail/mail.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { WalletModule } from './wallet/wallet.module';
-import { WalletModule } from './wallet/wallet.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { MonnifyModule } from './monnify/monnify.module';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { WalletModule } from './wallet/wallet.module';
       },
     }),
     WalletModule,
+    TransactionModule,
+    MonnifyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

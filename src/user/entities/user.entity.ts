@@ -11,6 +11,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import Profile from './profile.entity';
 import { RoleTypes } from 'src/utils/constants';
+import { Wallet } from 'src/wallet/entities/wallet.entity';
 
 @Entity()
 class User extends BaseEntity {
@@ -64,8 +65,12 @@ class User extends BaseEntity {
   @OneToOne(() => Profile, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
-  profile?: Profile;
+  public profile: Profile;
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user, {
+    eager: true,
+  })
+  public wallet: Wallet;
 
   async comparePasswords(
     userPassword: string,

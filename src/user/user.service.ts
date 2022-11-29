@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { WalletService } from 'src/wallet/wallet.service';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,9 +15,13 @@ import User from './entities/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private walletService: WalletService,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     const newUser = await this.userRepository.save(createUserDto);
+    const wallet = await this.walletService.create(newUser);
+    console.log(wallet);
     return newUser;
   }
 
@@ -27,6 +37,7 @@ export class UserService {
 
   async findAll() {
     const allUsers = await this.userRepository.find();
+    console.log(allUsers);
     return allUsers;
   }
 
@@ -46,7 +57,10 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const deleteResponse = await this.userRepository.delete(id);
+    if (!deleteResponse.affected) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
   }
 }
