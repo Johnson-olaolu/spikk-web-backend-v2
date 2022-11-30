@@ -1,46 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { Cache } from 'cache-manager';
+import { IConfirmPaymentResponse, IInitiateCreditResponse } from './types';
 
 @Injectable()
 export class MonnifyService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   private async generateMonnifyToken(): Promise<string> {
-    try {
-      const clientIDSecretInBase64 = Buffer.from(
-        `${this.configService.get('MONNIFY_API_KEY')}:${this.configService.get(
-          'MONNIFY_SECRET_KEY',
-        )}`,
-        'utf8',
-      ).toString('base64');
-      console.log({
-        secretkey: this.configService.get('MONNIFY_API_KEY'),
-        apikey: this.configService.get('MONNIFY_SECRET_KEY'),
-        clientIDSecretInBase64,
-        baseUrl: this.configService.get('MONNIFY_BASE_URL'),
-      });
-      const headers = {
-        // Authorization: `Basic ${clientIDSecretInBase64}`,
-        'content-type': 'application/json',
-        Authorization: `Basic 
-        TUtfVEVTVF9CVjBCRjJNWVlEOkQwSFVXSEdFTlVYQ01TUzcwWUxKQUM0RlEyOUJMWUY2`,
-      };
-      const response = await axios.post(
-        `https://sandbox.monnify.com/api/v1/auth/login`,
-        null,
-        {
-          timeout: 1000 * 60,
-          headers,
-        },
-      );
-      console.log(response);
-      const { responseBody } = response.data;
-      const { accessToken } = responseBody;
-      return accessToken;
-    } catch (error) {
-      console.error(error);
-    }
+    const clientIDSecretInBase64 = Buffer.from(
+      `${this.configService.get('MONNIFY_API_KEY')}:${this.configService.get(
+        'MONNIFY_SECRET_KEY',
+      )}`,
+      'utf8',
+    ).toString('base64');
+    const headers = {
+      Authorization: `Basic ${clientIDSecretInBase64}`,
+      Accept: 'application/json',
+      'Accept-Encoding': 'identity',
+    };
+    // const cachedAccessToken = await this.cacheManager.get(
+    //   'MONNIFY_ACCESS_TOKEN',
+    // );
+    // if (cachedAccessToken) {
+    //   return cachedAccessToken as any;
+    // }
+    const response = await axios.post(
+      `${this.configService.get('MONNIFY_BASE_URL')}/api/v1/auth/login`,
+      null,
+      {
+        timeout: 1000 * 60,
+        headers,
+      },
+    );
+    const { responseBody } = response.data;
+    const { accessToken, expiresIn } = responseBody;
+
+    // await this.cacheManager.set('MONNIFY_ACCESS_TOKEN', accessToken, expiresIn);
+
+    return accessToken;
   }
 
   async initiateDebitTransaction(payload: {
@@ -50,34 +52,64 @@ export class MonnifyService {
     paymentReference: string;
     redirectUrl: string;
     paymentDescription: string;
-  }) {
-    const transactionPayload = {
-      amount: payload.amount,
-      customerName: payload.name,
-      customerEmail: payload.email,
-      paymentReference: payload.paymentReference,
-      paymentDescription: 'Trial transaction',
-      currencyCode: 'NGN',
-      contractCode: this.configService.get('MONNIFY_CONTRACT_CODE'),
-      redirectUrl: payload.redirectUrl,
-      paymentMethods: ['CARD', 'ACCOUNT_TRANSFER'],
-    };
-    const token = await this.generateMonnifyToken();
+    currency: string;
+  }): Promise<IInitiateCreditResponse> {
+    try {
+      const transactionPayload = {
+        amount: payload.amount,
+        customerName: payload.name,
+        customerEmail: payload.email,
+        paymentReference: payload.paymentReference,
+        paymentDescription: 'Trial transaction',
+        currencyCode: payload.currency,
+        contractCode: this.configService.get('MONNIFY_CONTRACT_CODE'),
+        redirectUrl: payload.redirectUrl,
+        paymentMethods: ['CARD', 'ACCOUNT_TRANSFER'],
+      };
+      const token = await this.generateMonnifyToken();
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-    const response = await axios.post(
-      `${this.configService.get(
-        'MONNIFY_BASE_URL',
-      )}/api/v1/merchant/transactions/init-transaction`,
-      transactionPayload,
-      { headers },
-    );
-    const { responseBody } = response.data;
-
-    return responseBody;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Accept-Encoding': 'identity',
+      };
+      const response = await axios.post(
+        `${this.configService.get(
+          'MONNIFY_BASE_URL',
+        )}/api/v1/merchant/transactions/init-transaction`,
+        transactionPayload,
+        { headers },
+      );
+      const { responseBody } = response.data;
+      return responseBody;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  async confirmTransaction() {}
+  async confirmDebitTransaction(
+    transactionReference: string,
+  ): Promise<IConfirmPaymentResponse> {
+    console.log(transactionReference);
+    try {
+      const token = await this.generateMonnifyToken();
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Accept-Encoding': 'identity',
+      };
+      const response = await axios.get(
+        `${this.configService.get(
+          'MONNIFY_BASE_URL',
+        )}/api/v2/transactions/${encodeURIComponent(transactionReference)}`,
+        { headers },
+      );
+      const { responseBody } = response.data;
+      console.log(responseBody);
+      return responseBody;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }

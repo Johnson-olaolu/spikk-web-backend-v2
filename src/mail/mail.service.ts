@@ -32,7 +32,6 @@ export class MailService {
     )}/auth/change-password?email=${user.email}&token=${
       user.resetPasswordToken
     }`;
-    console.log(url);
     await this.mailerService.sendMail({
       to: user.email,
       // from: '"Support Team" <support@example.com>', // override default from
@@ -42,6 +41,25 @@ export class MailService {
         // ✏️ filling curly brackets with content
         name: user.name,
         url: url,
+        date: moment().format('DD MMM'),
+      },
+    });
+  }
+
+  async sendDebitConfirmedMail(
+    user: User,
+    payload: { currency: string; amount: number },
+  ) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: 'Debit Confirmed',
+      template: './debitConfirmedMail', // `.hbs` extension is appended automatically
+      context: {
+        // ✏️ filling curly brackets with content
+        name: user.name,
+        currency: payload.currency,
+        amount: payload.amount,
         date: moment().format('DD MMM'),
       },
     });

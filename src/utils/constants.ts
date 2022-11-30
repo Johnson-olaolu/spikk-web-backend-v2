@@ -15,8 +15,25 @@ export enum MYSQL_ERROR_CODES {
 }
 
 export enum TransactionTypes {
-  Debit = 'Debit',
-  Credit = 'Credit',
+  MONNIFY_DEBIT = ' MONNIFY_DEBIT',
+  MONNIFY_CREDIT = 'MONNIFY_CREDIT',
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
 }
 
-export enum TransactionStatus {}
+export enum TransactionStatus {
+  INITIATED = 'INITIATED',
+  CONFIRMED = 'CONFIRMED',
+}
+
+export enum MonnifyTransactionStatuses {
+  PAID = 'PAID',
+  OVERPAID = 'OVERPAID',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  PENDING = 'PENDING',
+  ABANDONED = 'ABANDONED',
+  CANCELLED = 'CANCELED',
+  FAILED = 'FAILED',
+  REVERSED = 'REVERSED',
+  EXPIRED = 'EXPIRED',
+}

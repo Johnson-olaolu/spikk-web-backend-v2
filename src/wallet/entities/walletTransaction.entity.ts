@@ -1,4 +1,4 @@
-import { TransactionTypes } from 'src/utils/constants';
+import { TransactionStatus, TransactionTypes } from 'src/utils/constants';
 import {
   BaseEntity,
   Column,
@@ -19,6 +19,18 @@ export class WalletTransaction extends BaseEntity {
   public transactionType: TransactionTypes;
 
   @Column()
+  public transactionStatus: TransactionStatus;
+
+  @Column()
+  public amount: number;
+
+  @Column()
+  public currency: string;
+
+  @Column()
+  public description: string;
+
+  @Column()
   public prevBalance: number;
 
   @Column()
@@ -27,7 +39,8 @@ export class WalletTransaction extends BaseEntity {
   @ManyToOne(() => Wallet, (wallet) => wallet.transactions)
   public wallet: Wallet;
 
-  // reference int [ref: > Transaction.transactionReference]
+  @Column()
+  public transactionReference: string;
   // walletId int [ref:> Wallet.id]
   @CreateDateColumn()
   public createdAt: Date;

@@ -52,7 +52,7 @@ export class Wallet extends BaseEntity {
     () => WalletTransaction,
     (walletTransaction) => walletTransaction.wallet,
   )
-  public transactions: WalletTransaction;
+  public transactions: WalletTransaction[];
 
   @CreateDateColumn()
   public createdAt: Date;

@@ -1,24 +1,31 @@
+import { MonnifyTransactionStatuses } from 'src/utils/constants';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
 import { WalletTransaction } from 'src/wallet/entities/walletTransaction.entity';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+@Entity()
 export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @OneToOne(() => Wallet)
-  @JoinColumn()
+  @ManyToOne(() => Wallet, {
+    onDelete: 'CASCADE',
+  })
   public wallet: Wallet;
 
-  @OneToOne(() => WalletTransaction)
+  @OneToOne(() => WalletTransaction, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   public walletTransactions: WalletTransaction;
 
@@ -66,20 +73,35 @@ export class Transaction extends BaseEntity {
   @Column({
     nullable: false,
   })
+  public amount: number;
+
+  @Column({
+    nullable: true,
+  })
   public amountPaid: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public totalPayable: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
-  public cardDetails: number;
+  public cardDetails: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
+  })
+  public accountDetails: string;
+
+  @Column({
+    nullable: true,
+  })
+  public accountPayments: string;
+
+  @Column({
+    nullable: true,
   })
   public paymentMethod: string;
 
@@ -89,17 +111,17 @@ export class Transaction extends BaseEntity {
   public currency: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public settlementAmount: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
-  public paymentStatus: string;
+  public paymentStatus: MonnifyTransactionStatuses;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public customer: string;
 

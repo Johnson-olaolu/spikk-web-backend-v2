@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -21,15 +21,12 @@ import { MonnifyModule } from './monnify/monnify.module';
     DatabaseModule,
     AuthModule,
     MailModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../assets'),
-      serveStaticOptions: {
-        index: false,
-      },
-    }),
     WalletModule,
     TransactionModule,
     MonnifyModule,
+    CacheModule.register({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
