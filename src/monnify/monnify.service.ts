@@ -2,7 +2,11 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Cache } from 'cache-manager';
-import { IConfirmPaymentResponse, IInitiateCreditResponse } from './types';
+import {
+  IConfirmDisbursementResponse,
+  IConfirmPaymentResponse,
+  IInitiateCreditResponse,
+} from './types';
 
 @Injectable()
 export class MonnifyService {
@@ -107,6 +111,48 @@ export class MonnifyService {
       );
       const { responseBody } = response.data;
       console.log(responseBody);
+      return responseBody;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createCreditTransaction(
+    transactionReference: string,
+    amount: number,
+    payload: {
+      destinationBankCode: string;
+      destinationAccountNumber: string;
+      sourceAccountNumber: string;
+      destinationAccountName: string;
+      currency: string;
+    },
+  ): Promise<IConfirmDisbursementResponse> {
+    try {
+      const transactionPayload = {
+        amount: amount,
+        reference: transactionReference,
+        narration: '',
+        destinationBankCode: payload.destinationBankCode,
+        destinationAccountNumber: payload.destinationAccountNumber,
+        currency: payload.currency,
+        sourceAccountNumber: payload.sourceAccountNumber,
+        destinationAccountName: payload.destinationAccountName,
+      };
+      const token = await this.generateMonnifyToken();
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Accept-Encoding': 'identity',
+      };
+      const response = await axios.post(
+        `${this.configService.get(
+          'MONNIFY_BASE_URL',
+        )}/api/v2/disbursements/single`,
+        transactionPayload,
+        { headers },
+      );
+      const { responseBody } = response.data;
       return responseBody;
     } catch (error) {
       console.log(error);

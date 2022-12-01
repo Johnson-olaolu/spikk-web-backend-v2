@@ -43,3 +43,16 @@ export interface IConfirmPaymentResponse {
   customer: { email: string; name: string };
   metaData: Record<string, unknown>;
 }
+
+export interface IConfirmDisbursementResponse {
+  amount: number;
+  reference: string;
+  status: string;
+  dateCreated: string;
+  totalFee: number;
+  sessionId: string;
+  destinationAccountName: string;
+  destinationBankName: string;
+  destinationAccountNumber: string;
+  destinationBankCode: string;
+}

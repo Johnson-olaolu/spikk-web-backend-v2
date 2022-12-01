@@ -19,6 +19,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfirmCreditQueryDto } from './dto/confirm-credit.dto';
 import { Response } from 'express';
 import { join } from 'path';
+import { InitiateDebitDto } from './dto/initiate-debit.dto';
 
 @Controller('transaction')
 export class TransactionController {
@@ -45,6 +46,17 @@ export class TransactionController {
     return res.sendFile(
       join(__dirname + '../templates/html/payment-successful.html'),
     );
+  }
+
+  @HttpCode(200)
+  @UseGuards(AuthGuard('jwt'))
+  @Post('initiate-debit')
+  async initiateDebit(@Body() InitiateDebitDto: InitiateDebitDto) {
+    // const data = await this.transactionService.create(createTransactionDto);
+    return {
+      success: true,
+      message: 'transaction link generated',
+    };
   }
 
   @Get()

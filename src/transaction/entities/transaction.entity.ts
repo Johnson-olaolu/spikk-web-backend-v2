@@ -1,4 +1,7 @@
-import { MonnifyTransactionStatuses } from 'src/utils/constants';
+import {
+  MonnifyTransactionStatuses,
+  TransactionTypes,
+} from 'src/utils/constants';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
 import { WalletTransaction } from 'src/wallet/entities/walletTransaction.entity';
 import {
@@ -28,6 +31,9 @@ export class Transaction extends BaseEntity {
   })
   @JoinColumn()
   public walletTransactions: WalletTransaction;
+
+  @Column()
+  public transactionType: TransactionTypes;
 
   @Column({
     nullable: true,
@@ -124,6 +130,26 @@ export class Transaction extends BaseEntity {
     nullable: true,
   })
   public customer: string;
+
+  @Column({
+    nullable: true,
+  })
+  public destinationAccountName: string;
+
+  @Column({
+    nullable: true,
+  })
+  public destinationBankName: string;
+
+  @Column({
+    nullable: true,
+  })
+  public destinationAccountNumber: string;
+
+  @Column({
+    nullable: true,
+  })
+  public destinationBankCode: string;
 
   @CreateDateColumn()
   public createdAt: Date;

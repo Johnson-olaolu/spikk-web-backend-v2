@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Repository } from 'typeorm';
 import { ConfirmCreditQueryDto } from './dto/confirm-credit.dto';
+import { InitiateDebitDto } from './dto/initiate-debit.dto';
+import { TransactionTypes } from 'src/utils/constants';
 
 @Injectable()
 export class TransactionService {
@@ -47,6 +49,7 @@ export class TransactionService {
     );
     await this.transactionRepository.save({
       wallet: wallet,
+      transactionType: TransactionTypes.MONNIFY_DEBIT,
       transactionReference: monnifyResponse.transactionReference,
       paymentReference: monnifyResponse.paymentReference,
       enabledPaymentMethod: JSON.stringify(
@@ -101,6 +104,51 @@ export class TransactionService {
         transactionReference: transaction.paymentReference,
       });
     }
+  }
+
+  async initiateDebit(initiateDebitDto: InitiateDebitDto) {
+    const wallet = await this.walletService.findOne(initiateDebitDto.walletId);
+
+    const presentDate = moment().format('YYYYMMDD');
+    const paymentReference = uniqid(
+      `${wallet.user.userName.toUpperCase()}|`,
+      `|${presentDate}`,
+    );
+
+    const monnifyResponse = await this.monnifyService.createCreditTransaction(
+      paymentReference,
+      initiateDebitDto.amount,
+      {
+        currency: 'NGN',
+        destinationAccountName: initiateDebitDto.destinationAccountName,
+        destinationAccountNumber: initiateDebitDto.destinationAccountNumber,
+        destinationBankCode: initiateDebitDto.destinationBankCode,
+        sourceAccountNumber: this.configService.get('MONNIFY_ACCOUNT_NO'),
+      },
+    );
+    const transaction = await this.transactionRepository.save({
+      wallet: wallet,
+      transactionType: TransactionTypes.MONNIFY_CREDIT,
+      transactionReference: monnifyResponse.sessionId,
+      paymentReference: monnifyResponse.reference,
+      amount: initiateDebitDto.amount,
+      currency: 'NGN',
+      destinationAccountName: monnifyResponse.destinationAccountName,
+      destinationBankName: monnifyResponse.destinationBankName,
+      destinationAccountNumber: monnifyResponse.destinationAccountNumber,
+      destinationBankCode: monnifyResponse.destinationBankCode,
+    });
+
+    if (monnifyResponse.status === 'SUCCESS') {
+      await this.walletService.creditWallet(transaction.wallet.id, {
+        amount: transaction.amount,
+        description: transaction.paymentDescription,
+        currency: transaction.currency,
+        transactionReference: transaction.paymentReference,
+      });
+    }
+
+    return true;
   }
 
   findAll() {

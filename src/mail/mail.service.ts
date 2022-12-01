@@ -64,4 +64,22 @@ export class MailService {
       },
     });
   }
+  async sendCreditConfirmedMail(
+    user: User,
+    payload: { currency: string; amount: number },
+  ) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: 'Withdrawal Succesfull',
+      template: './creditConfirmedMail', // `.hbs` extension is appended automatically
+      context: {
+        // ✏️ filling curly brackets with content
+        name: user.name,
+        currency: payload.currency,
+        amount: payload.amount,
+        date: moment().format('DD MMM'),
+      },
+    });
+  }
 }
