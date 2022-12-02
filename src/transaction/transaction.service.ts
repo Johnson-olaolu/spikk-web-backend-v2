@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as moment from 'moment';
 import * as uniqid from 'uniqid';
 import { WalletService } from 'src/wallet/wallet.service';
@@ -22,16 +22,21 @@ export class TransactionService {
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
   ) {}
-  async create(createTransactionDto: CreateTransactionDto) {
+
+  generateReference(userName?: string) {
+    const presentDate = moment().format('YYYYMMDD');
+    const paymentReference = uniqid(
+      `${(userName || 'SPIKK').toUpperCase()}-`,
+      `-${presentDate}`,
+    );
+    return paymentReference;
+  }
+
+  async initiateDebit(createTransactionDto: CreateTransactionDto) {
     const wallet = await this.walletService.findOne(
       createTransactionDto.walletId,
     );
-
-    const presentDate = moment().format('YYYYMMDD');
-    const paymentReference = uniqid(
-      `${wallet.user.userName.toUpperCase()}|`,
-      `|${presentDate}`,
-    );
+    const paymentReference = this.generateReference(wallet.user.userName);
     const payload = {
       name: wallet.user.name,
       email: wallet.user.email,
@@ -61,7 +66,7 @@ export class TransactionService {
     return monnifyResponse.checkoutUrl;
   }
 
-  async confirmCredit(confirmCreditDto: ConfirmCreditQueryDto) {
+  async confirmDebit(confirmCreditDto: ConfirmCreditQueryDto) {
     const transaction = await this.transactionRepository.findOne({
       where: {
         paymentReference: confirmCreditDto.paymentReference,
@@ -106,14 +111,16 @@ export class TransactionService {
     }
   }
 
-  async initiateDebit(initiateDebitDto: InitiateDebitDto) {
+  async credit(initiateDebitDto: InitiateDebitDto) {
     const wallet = await this.walletService.findOne(initiateDebitDto.walletId);
 
-    const presentDate = moment().format('YYYYMMDD');
-    const paymentReference = uniqid(
-      `${wallet.user.userName.toUpperCase()}|`,
-      `|${presentDate}`,
-    );
+    if (initiateDebitDto.amount > wallet.balance) {
+      throw new UnauthorizedException(
+        'You do not have enough balance for this transaction',
+      );
+    }
+
+    const paymentReference = this.generateReference(wallet.user.userName);
 
     const monnifyResponse = await this.monnifyService.createCreditTransaction(
       paymentReference,
@@ -148,7 +155,12 @@ export class TransactionService {
       });
     }
 
-    return true;
+    return {
+      amount: transaction.amount,
+      destinationAccountName: transaction.destinationAccountName,
+      destinationBankName: transaction.destinationBankName,
+      destinationAccountNumber: transaction.destinationAccountNumber,
+    };
   }
 
   findAll() {

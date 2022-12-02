@@ -27,9 +27,11 @@ export class TransactionController {
 
   @HttpCode(200)
   @UseGuards(AuthGuard('jwt'))
-  @Post('initiate-credit')
+  @Post('initiate-debit')
   async initiateCredit(@Body() createTransactionDto: CreateTransactionDto) {
-    const data = await this.transactionService.create(createTransactionDto);
+    const data = await this.transactionService.initiateDebit(
+      createTransactionDto,
+    );
     return {
       success: true,
       message: 'transaction link generated',
@@ -37,12 +39,12 @@ export class TransactionController {
     };
   }
 
-  @Get('confirm-credit')
+  @Get('confirm-debit')
   async confirmCredit(
     @Query() confirmCreditDto: ConfirmCreditQueryDto,
     @Res() res: Response,
   ) {
-    await this.transactionService.confirmCredit(confirmCreditDto);
+    await this.transactionService.confirmDebit(confirmCreditDto);
     return res.sendFile(
       join(__dirname + '../templates/html/payment-successful.html'),
     );
@@ -50,12 +52,13 @@ export class TransactionController {
 
   @HttpCode(200)
   @UseGuards(AuthGuard('jwt'))
-  @Post('initiate-debit')
-  async initiateDebit(@Body() InitiateDebitDto: InitiateDebitDto) {
-    // const data = await this.transactionService.create(createTransactionDto);
+  @Post('credit')
+  async initiateDebit(@Body() initiateDebitDto: InitiateDebitDto) {
+    const data = await this.transactionService.credit(initiateDebitDto);
     return {
       success: true,
-      message: 'transaction link generated',
+      message: 'Debit successFull',
+      data,
     };
   }
 

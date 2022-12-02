@@ -20,8 +20,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const newUser = await this.userRepository.save(createUserDto);
-    const wallet = await this.walletService.create(newUser);
-    console.log(wallet);
+    await this.walletService.create(newUser);
     return newUser;
   }
 
@@ -37,7 +36,6 @@ export class UserService {
 
   async findAll() {
     const allUsers = await this.userRepository.find();
-    console.log(allUsers);
     return allUsers;
   }
 

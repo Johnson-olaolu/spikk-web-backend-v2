@@ -58,12 +58,45 @@ export class WalletService {
       description: payload.description,
       amount: payload.amount,
       currency: payload.currency,
-      transactionType: TransactionTypes.MONNIFY_CREDIT,
+      transactionType: TransactionTypes.MONNIFY_DEBIT,
       transactionStatus: TransactionStatus.CONFIRMED,
     });
 
     wallet.balance = wallet.balance + payload.amount;
     wallet.ledgerBalance = wallet.ledgerBalance + payload.amount;
+    wallet.save();
+
+    await this.mailService.sendDebitConfirmedMail(wallet.user, {
+      currency: payload.currency,
+      amount: payload.amount,
+    });
+    return;
+  }
+
+  async creditWallet(
+    walletId: string,
+    payload: {
+      amount: number;
+      description: string;
+      currency: string;
+      transactionReference: string;
+    },
+  ) {
+    const wallet = await this.findOne(walletId);
+    await this.walletTransactionRepository.save({
+      wallet: wallet,
+      currBalance: wallet.balance - payload.amount,
+      prevBalance: wallet.balance,
+      transactionReference: payload.transactionReference,
+      description: payload.description,
+      amount: payload.amount,
+      currency: payload.currency,
+      transactionType: TransactionTypes.MONNIFY_CREDIT,
+      transactionStatus: TransactionStatus.CONFIRMED,
+    });
+
+    wallet.balance = wallet.balance - payload.amount;
+    wallet.ledgerBalance = wallet.ledgerBalance - payload.amount;
     wallet.save();
 
     await this.mailService.sendDebitConfirmedMail(wallet.user, {

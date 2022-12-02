@@ -2,6 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Cache } from 'cache-manager';
+import { TransactionTypes } from 'src/utils/constants';
 import {
   IConfirmDisbursementResponse,
   IConfirmPaymentResponse,
@@ -132,7 +133,7 @@ export class MonnifyService {
       const transactionPayload = {
         amount: amount,
         reference: transactionReference,
-        narration: '',
+        narration: TransactionTypes.MONNIFY_CREDIT,
         destinationBankCode: payload.destinationBankCode,
         destinationAccountNumber: payload.destinationAccountNumber,
         currency: payload.currency,

@@ -48,7 +48,9 @@ export class Transaction extends BaseEntity {
   })
   public merchantName: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   public enabledPaymentMethod: string;
 
   @Column({
