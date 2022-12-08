@@ -6,11 +6,14 @@ import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { WalletModule } from './wallet/wallet.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { MonnifyModule } from './monnify/monnify.module';
+import { OrderModule } from './order/order.module';
+import { SpikkConstantsModule } from './spikk-constants/spikk-constants.module';
+import { SeedModule } from './seed/seed.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './utils/ExceptionFilter';
 
 @Module({
   imports: [
@@ -24,11 +27,20 @@ import { MonnifyModule } from './monnify/monnify.module';
     WalletModule,
     TransactionModule,
     MonnifyModule,
+    SeedModule,
     CacheModule.register({
       isGlobal: true,
     }),
+    OrderModule,
+    SpikkConstantsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
+    AppService,
+  ],
 })
 export class AppModule {}

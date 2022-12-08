@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
 import User from 'src/user/entities/user.entity';
 import { TransactionStatus, TransactionTypes } from 'src/utils/constants';
+import { generateReference } from 'src/utils/misc';
 import { Repository } from 'typeorm';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { Wallet } from './entities/wallet.entity';
@@ -104,6 +109,32 @@ export class WalletService {
       amount: payload.amount,
     });
     return;
+  }
+
+  async initiateEscrowCredit(
+    walletId: string,
+    payload: { amount: number; currency: string },
+  ) {
+    const wallet = await this.findOne(walletId);
+
+    if (payload.amount > wallet.balance) {
+      throw new ForbiddenException('Wallet can not fund this order');
+    }
+    const transactionReference = generateReference(wallet.user.userName);
+    const walletTransaction = await this.walletTransactionRepository.save({
+      wallet: wallet,
+      currBalance: wallet.balance - payload.amount,
+      prevBalance: wallet.balance,
+      transactionReference: transactionReference,
+      description: 'initiate escrow credit',
+      amount: payload.amount,
+      currency: payload.currency,
+      transactionType: TransactionTypes.ESCROW_CREDIT,
+      transactionStatus: TransactionStatus.INITIATED,
+    });
+    wallet.balance = wallet.balance - payload.amount;
+    await wallet.save();
+    return walletTransaction;
   }
 
   update(id: number, updateWalletDto: UpdateWalletDto) {

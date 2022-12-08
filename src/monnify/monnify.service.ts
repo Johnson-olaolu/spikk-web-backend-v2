@@ -95,7 +95,6 @@ export class MonnifyService {
   async confirmDebitTransaction(
     transactionReference: string,
   ): Promise<IConfirmPaymentResponse> {
-    console.log(transactionReference);
     try {
       const token = await this.generateMonnifyToken();
 
@@ -111,7 +110,6 @@ export class MonnifyService {
         { headers },
       );
       const { responseBody } = response.data;
-      console.log(responseBody);
       return responseBody;
     } catch (error) {
       console.log(error);

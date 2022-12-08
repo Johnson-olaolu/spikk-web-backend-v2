@@ -1,6 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as moment from 'moment';
-import * as uniqid from 'uniqid';
 import { WalletService } from 'src/wallet/wallet.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -12,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfirmCreditQueryDto } from './dto/confirm-credit.dto';
 import { InitiateDebitDto } from './dto/initiate-debit.dto';
 import { TransactionTypes } from 'src/utils/constants';
+import { generateReference } from 'src/utils/misc';
 
 @Injectable()
 export class TransactionService {
@@ -23,20 +22,11 @@ export class TransactionService {
     private transactionRepository: Repository<Transaction>,
   ) {}
 
-  generateReference(userName?: string) {
-    const presentDate = moment().format('YYYYMMDD');
-    const paymentReference = uniqid(
-      `${(userName || 'SPIKK').toUpperCase()}-`,
-      `-${presentDate}`,
-    );
-    return paymentReference;
-  }
-
   async initiateDebit(createTransactionDto: CreateTransactionDto) {
     const wallet = await this.walletService.findOne(
       createTransactionDto.walletId,
     );
-    const paymentReference = this.generateReference(wallet.user.userName);
+    const paymentReference = generateReference(wallet.user.userName);
     const payload = {
       name: wallet.user.name,
       email: wallet.user.email,
@@ -120,7 +110,7 @@ export class TransactionService {
       );
     }
 
-    const paymentReference = this.generateReference(wallet.user.userName);
+    const paymentReference = generateReference(wallet.user.userName);
 
     const monnifyResponse = await this.monnifyService.createCreditTransaction(
       paymentReference,

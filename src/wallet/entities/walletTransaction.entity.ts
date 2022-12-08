@@ -41,7 +41,7 @@ export class WalletTransaction extends BaseEntity {
 
   @Column()
   public transactionReference: string;
-  // walletId int [ref:> Wallet.id]
+
   @CreateDateColumn()
   public createdAt: Date;
 
