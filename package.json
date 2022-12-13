@@ -21,7 +21,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "spikk-cli": "TS_NODE_PROJECT=./tsconfig.json ts-node -r tsconfig-paths/register ./src/cli.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",
@@ -42,7 +43,7 @@
     "http-status": "^1.5.3",
     "moment": "^2.29.4",
     "mysql2": "^2.3.3",
-    "nest-commander": "^3.3.0",
+    "nestjs-command": "^3.1.2",
     "nodemailer": "^6.8.0",
     "otp-generator": "^4.0.0",
     "passport": "^0.6.0",

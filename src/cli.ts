@@ -1,23 +1,19 @@
 #!/usr/bin/env node
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-  CommandFactory,
-  CommandRunnerModule,
-  CommandRunnerService,
-} from 'nest-commander';
+import { CommandModule, CommandService } from 'nestjs-command';
 import { AppModule } from './app.module';
-import { SeedModule } from './seed/seed.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.createApplicationContext(AppModule);
   try {
-    await app.select(CommandRunnerModule).get(CommandRunnerService).run();
+    await app.select(CommandModule).get(CommandService).exec();
     await app.close();
   } catch (error) {
+    console.error('error');
     console.error(error);
     await app.close();
     process.exit(1);
   }
 }
+
 bootstrap();

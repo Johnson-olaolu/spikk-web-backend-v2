@@ -1,23 +1,13 @@
-import { Command, CommandRunner, Option } from 'nest-commander';
+import { Injectable } from '@nestjs/common';
+import { Command } from 'nestjs-command';
 import { SpikkConstantsService } from 'src/spikk-constants/spikk-constants.service';
 
-interface BasicCommandOptions {
-  type: 'constants' | 'roles' | 'permision' | 'user';
-}
-@Command({ name: 'seed', description: 'seed data into database' })
-export class SeedService extends CommandRunner {
-  constructor(private spikkConstantService: SpikkConstantsService) {
-    super();
-  }
-  async run(passedParam: string[], options?: BasicCommandOptions) {
-    if (options.type === 'constants') {
-      this.seedConstants();
-    }
-  }
-
-  @Option({
-    flags: '-t, --type [type]',
-    description: 'Select seed type',
+@Injectable()
+export class SeedService {
+  constructor(private spikkConstantService: SpikkConstantsService) {}
+  @Command({
+    command: 'seed:constants',
+    describe: 'seed site contants',
   })
   async seedConstants() {
     await this.spikkConstantService.seedSpikkConstants();

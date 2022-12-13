@@ -16,21 +16,21 @@ export class SpikkConstantsService {
     private spikkConstantRepository: Repository<SpikkConstant>,
   ) {}
 
-  seedSpikkConstants() {
+  async seedSpikkConstants() {
     for (const constant of this.defaultConstants) {
-      if (
-        this.spikkConstantRepository.find({
-          where: {
-            key: constant.key,
-          },
-        })
-      ) {
+      const spikkConstant = await this.spikkConstantRepository.findOne({
+        where: {
+          key: constant.key,
+        },
+      });
+      if (spikkConstant) {
         return;
       }
-      this.spikkConstantRepository.save({
+      const newSpikkConstant = await this.spikkConstantRepository.save({
         key: constant.key,
         value: constant.value,
       });
+      console.log(newSpikkConstant);
     }
   }
 }

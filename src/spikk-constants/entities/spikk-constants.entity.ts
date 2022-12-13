@@ -5,7 +5,9 @@ export class SpikkConstant extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   public key: string;
 
   @Column()
