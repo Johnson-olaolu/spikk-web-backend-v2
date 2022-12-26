@@ -39,7 +39,9 @@ export class WalletTransaction extends BaseEntity {
   @ManyToOne(() => Wallet, (wallet) => wallet.transactions)
   public wallet: Wallet;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   public transactionReference: string;
 
   @CreateDateColumn()

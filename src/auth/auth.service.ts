@@ -78,11 +78,10 @@ export class AuthService {
       upperCaseAlphabets: false,
     });
 
-    const expire = moment().add(15, 'minutes').format('YYYY-MM-DD hh:mm:ss');
+    const expire = moment().add(15, 'minutes');
 
     user.confirmUserToken = verificationToken;
-    user.tokenTimeToLive = new Date(expire);
-
+    user.tokenTimeToLive = moment(expire, true).toDate();
     await user.save();
     await this.mailService.sendUserConfirmationMail(user);
   }
@@ -92,6 +91,15 @@ export class AuthService {
     const user = await this.userService.findUserByEmailOrUserName(email);
     const currentDate = moment().valueOf();
 
+    console.log({
+      currentDate,
+      today: moment(),
+      time: user.tokenTimeToLive,
+      ttl: moment(user.tokenTimeToLive).valueOf(),
+    });
+    console.log(
+      currentDate - (moment(user.tokenTimeToLive).valueOf() + 3600 * 1000),
+    );
     if (currentDate > moment(user.tokenTimeToLive).valueOf()) {
       throw new HttpException('Token Expired', HttpStatus.UNAUTHORIZED);
     }

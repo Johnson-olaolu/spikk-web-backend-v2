@@ -4,7 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BCRYPT_HASH_ROUND, RoleTypes } from 'src/utils/constants';
 import { WalletService } from 'src/wallet/wallet.service';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,6 +15,13 @@ import User from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  private superAdmin: Partial<User> = {
+    name: 'Spikk Admin',
+    userName: 'spikk_admin',
+    email: 'spikk_admik@spikk.com',
+    password: 'admin',
+  };
+
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private walletService: WalletService,
@@ -53,6 +62,22 @@ export class UserService {
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
+  }
+
+  async seedSuperAdmin() {
+    const hashedPass = await bcrypt.hash(
+      this.superAdmin.password,
+      BCRYPT_HASH_ROUND,
+    );
+    const superAdmin = await this.userRepository.save({
+      name: this.superAdmin.name,
+      email: this.superAdmin.email,
+      userName: this.superAdmin.userName,
+      password: hashedPass,
+      role: RoleTypes.SuperAdmin,
+      isVerified: true,
+    });
+    console.log(superAdmin);
   }
 
   async remove(id: string) {

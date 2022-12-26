@@ -1,16 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { Command } from 'nestjs-command';
 import { SpikkConstantsService } from 'src/spikk-constants/spikk-constants.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class SeedService {
-  constructor(private spikkConstantService: SpikkConstantsService) {}
+  constructor(
+    private spikkConstantService: SpikkConstantsService,
+    private userService: UserService,
+  ) {}
   @Command({
     command: 'seed:constants',
     describe: 'seed site contants',
   })
   async seedConstants() {
     await this.spikkConstantService.seedSpikkConstants();
+  }
+
+  @Command({
+    command: 'seed:super-admin',
+    describe: 'seed super admin',
+  })
+  async seedSuperAdmin() {
+    await this.userService.seedSuperAdmin();
   }
 }
 

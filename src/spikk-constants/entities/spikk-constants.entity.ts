@@ -11,5 +11,5 @@ export class SpikkConstant extends BaseEntity {
   public key: string;
 
   @Column()
-  public value: number;
+  public value: string;
 }

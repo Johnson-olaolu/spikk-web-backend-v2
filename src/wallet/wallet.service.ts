@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
@@ -134,6 +135,26 @@ export class WalletService {
     });
     wallet.balance = wallet.balance - payload.amount;
     await wallet.save();
+    return walletTransaction;
+  }
+
+  async confirmEscrowCredit(transactionReference: string) {
+    const walletTransaction = await this.walletTransactionRepository.findOne({
+      where: {
+        transactionReference: transactionReference,
+      },
+      relations: {
+        wallet: true,
+      },
+    });
+    if (walletTransaction.transactionStatus === TransactionStatus.CONFIRMED) {
+      throw new UnauthorizedException('Order already completed');
+    }
+    walletTransaction.transactionStatus = TransactionStatus.CONFIRMED;
+    const wallet = await this.findOne(walletTransaction.wallet.id);
+    wallet.ledgerBalance = wallet.ledgerBalance - walletTransaction.amount;
+    await wallet.save();
+    await walletTransaction.save();
     return walletTransaction;
   }
 

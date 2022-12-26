@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SpikkConstant } from './entities/spikk-constants.entity';
+import { spikkConstants } from './types';
 
 @Injectable()
 export class SpikkConstantsService {
-  private defaultConstants = [
+  private defaultConstants: {
+    key: spikkConstants;
+    value: string;
+  }[] = [
     {
       key: 'DELIVERY_FEE',
-      value: 1000,
+      value: '1000',
     },
   ];
   constructor(
@@ -32,5 +36,17 @@ export class SpikkConstantsService {
       });
       console.log(newSpikkConstant);
     }
+  }
+
+  async getConstant(key: spikkConstants) {
+    const constant = await this.spikkConstantRepository.findOne({
+      where: {
+        key: key,
+      },
+    });
+    if (!constant) {
+      throw new NotFoundException('Can not find Constant');
+    }
+    return constant.value;
   }
 }

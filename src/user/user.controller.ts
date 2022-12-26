@@ -38,7 +38,7 @@ export class UserController {
     const user = await this.userService.findOne(id);
     return {
       success: true,
-      message: 'users fetched successfully',
+      message: 'user fetched successfully',
       data: user,
     };
   }

@@ -15,13 +15,16 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import User from 'src/user/entities/user.entity';
+import { ConfirmOrderDto } from './dto/confirm-order.dto';
+import RoleGuard from 'src/auth/guards/roleGuards.guard';
+import { RoleTypes } from 'src/utils/constants';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
+  @Post('create')
   async createOrder(
     @Body() createOrderDto: CreateOrderDto,
     @Req() req: Request,
@@ -37,14 +40,35 @@ export class OrderController {
     };
   }
 
+  @UseGuards(RoleGuard([RoleTypes.Admin, RoleTypes.SuperAdmin]))
+  @Post('confirm')
+  async confirmOrder(@Body() confirmOrderDto: ConfirmOrderDto) {
+    const data = await this.orderService.confirmOrder(confirmOrderDto);
+    return {
+      success: true,
+      message: 'order confirmed sucessfully',
+      data,
+    };
+  }
+
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  async findAll() {
+    const data = await this.orderService.findAll();
+    return {
+      success: true,
+      message: 'orders fetched successfully',
+      data,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const data = await this.orderService.findOrder(id);
+    return {
+      success: true,
+      message: 'order fetched successfully',
+      data,
+    };
   }
 
   @Patch(':id')

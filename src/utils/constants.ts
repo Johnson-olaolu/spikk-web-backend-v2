@@ -2,6 +2,7 @@ export enum RoleTypes {
   SuperAdmin = 'SuperAdmin',
   Admin = 'Admin',
   Spikker = 'Spikker',
+  Pikker = 'Pikker',
 }
 
 export const permissions = [

@@ -35,7 +35,7 @@ export class TransactionService {
       currency: 'NGN',
       redirectUrl: `${this.configService.get(
         'BASE_URL',
-      )}/transaction/confirm-credit`,
+      )}/transaction/confirm-debit`,
       paymentDescription: '',
     };
 
@@ -139,7 +139,7 @@ export class TransactionService {
     if (monnifyResponse.status === 'SUCCESS') {
       await this.walletService.creditWallet(transaction.wallet.id, {
         amount: transaction.amount,
-        description: transaction.paymentDescription,
+        description: transaction.paymentDescription || 'credited wallet',
         currency: transaction.currency,
         transactionReference: transaction.paymentReference,
       });
