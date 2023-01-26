@@ -1,5 +1,36 @@
 version: '3.9'
 services:
+  backend:
+    depends_on:
+      - db
+    build: .
+    ports:
+      - $PORT:$PORT
+    networks:
+      - db
+    env_file:
+      - ./.env
+    environment:
+      - PORT=$PORT
+      - NODE_ENV=$NODE_ENV
+      - BASE_URL=$BASE_URL
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_PORT=$MYSQL_PORT
+      - MYSQL_HOST=db
+      - EMAIL_HOST=$EMAIL_HOST
+      - EMAIL_USER=$EMAIL_USER
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
+      - JWT_SECRET=$JWT_SECRET
+      - JWT_EXPIRATION_TIME=$JWT_EXPIRATION_TIME
+      - MONNIFY_BASE_URL=$MONNIFY_BASE_URL
+      - MONNIFY_SECRET_KEY= $MONNIFY_SECRET_KEY
+      - MONNIFY_API_KEY=$MONNIFY_API_KEY
+      - MONNIFY_CONTRACT_CODE=$MONNIFY_CONTRACT_CODE
+      - MONNIFY_ACCOUNT_NO=$MONNIFY_ACCOUNT_NO
+      - CLIENT_BASE_URL=$CLIENT_BASE_URL
   app:
     build:
       context: .
@@ -18,6 +49,8 @@ services:
       MYSQL_USER: spikk_admin
     ports:
       - 3306:3306
+    networks:
+      - db
 
   phpmyadmin:
     depends_on:
@@ -27,3 +60,6 @@ services:
       - 8080:80
     environment:
       - PMA_ARBITRARY=1
+networks:
+  db:
+    driver: bridge

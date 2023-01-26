@@ -9,6 +9,6 @@ async function bootstrap() {
   app.setGlobalPrefix('v1/api');
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(join(__dirname, '../assets'));
-  await app.listen(5001);
+  await app.listen(process.env.PORT || 5000);
 }
 bootstrap();
