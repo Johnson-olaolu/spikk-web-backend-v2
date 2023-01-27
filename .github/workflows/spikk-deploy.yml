@@ -26,3 +26,22 @@ jobs:
           push: true
           tags: kastroud/spikk-web-backend
   
+  deploy:
+    needs : build
+    runs-on : ubuntu-latest
+    environment : Spikk
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2 
+
+      - name: Get tag name
+        uses: olegtasarov/get-tag@v2
+      
+      - name: Install doctl
+        uses: digitalocean/actions-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+      
+      - name: Provision droplet and deploy container
+        run: doctl compute droplet create "GIT_TAG_NAME" --image docker-18-04 --size s-1vcpu-1gb --region nyc1 --user-data-file deploy.sh --wait
+  
