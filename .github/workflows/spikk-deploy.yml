@@ -38,7 +38,7 @@ jobs:
         uses: olegtasarov/get-tag@v2
       
       - name: Install doctl
-        uses: digitalocean/actions-doctl@v2
+        uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_TOKEN }}
       
