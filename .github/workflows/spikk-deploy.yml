@@ -13,7 +13,7 @@ jobs:
       - name:  Build and Push Docker Image
         uses: docker/build-push-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_EMAIL }}
+          email: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: kastroud/spikk
           tag_with_ref: true
