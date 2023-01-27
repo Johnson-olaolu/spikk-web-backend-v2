@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: Spikk
     steps:  
       - name: Checkout files
         uses: actions/checkout@v2
