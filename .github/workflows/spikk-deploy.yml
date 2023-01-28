@@ -37,11 +37,16 @@ jobs:
       - name: Get tag name
         uses: olegtarasov/get-tag@v2
       
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-      
-      - name: Provision droplet and deploy container
-        run: doctl compute droplet create "GIT_TAG_NAME" --image docker-18-04 --size s-1vcpu-1gb --region nyc1 --user-data-file deploy.sh --wait
+      - name: setup  git on server
+        run: |
+              apt-get update -qq \
+              apt-get install -qq git \
+              'which ssh-agent || ( apt-get install -qq openssh-client )' \
+              eval $(ssh-agent -s) \
+              ssh-add <(echo "${{secrets.DOCKERHUB_TOKEN}}") \
+              mkdir -p ~/.ssh \
+              '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+      - name: mkdir
+        run: ssh ${{ secrets.DIGITALOCEAN_USERNAME}}@${{secrets.DIGITALOCEAN_URL}} "mkdir test"
   
