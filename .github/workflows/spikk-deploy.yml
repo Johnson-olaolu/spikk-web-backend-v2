@@ -37,16 +37,11 @@ jobs:
       - name: Get tag name
         uses: olegtarasov/get-tag@v2
       
-      - name: setup  git on server
-        run: |
-              apt-get update && \
-              apt-get install git && \
-              'which ssh-agent || ( apt-get install openssh-client )' && \
-              eval $(ssh-agent -s) &&
-              ssh-add <(echo "${{secrets.DIGITALOCEAN_SSH}}") \
-              mkdir  ~/.ssh && \
-              '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
-      - name: mkdir
-        run: ssh ${{ secrets.DIGITALOCEAN_USERNAME}}@${{secrets.DIGITALOCEAN_URL}} "mkdir test"
+      - name: Install doctl
+        uses:  digitalocean/action-doctl@v2
+        with:
+          token : ${{ secrets.DIGITALOCEAN_TOKEN }}
+      
+      - name: access docker container
+        run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 "mkdir test"
   
