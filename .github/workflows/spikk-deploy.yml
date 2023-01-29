@@ -43,5 +43,5 @@ jobs:
           token : ${{ secrets.DIGITALOCEAN_TOKEN }}
       
       - name: access docker container
-        run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 "mkdir test"
+        run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 --ssh-command "mkdir test"
   
