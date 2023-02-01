@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
       - name: run docker 
-        run : docker-compose up
+        run : docker-compose up -d
 
       # - name: Get tag name
       #   uses: olegtarasov/get-tag@v2
