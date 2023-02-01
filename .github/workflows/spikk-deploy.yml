@@ -39,7 +39,7 @@ jobs:
       - name: run docker 
         run : docker-compose up -d
       - name: seed constants and superadmin
-        run : docker exec -it spikk-web-backend-v2_backend_1 "yarn spikk-cli seed:constants ; yarn spikk-cli seed:super-admin"
+        run : docker exec spikk-web-backend-v2_backend_1 "yarn spikk-cli seed:constants ; yarn spikk-cli seed:super-admin"
 
       # - name: Get tag name
       #   uses: olegtarasov/get-tag@v2
