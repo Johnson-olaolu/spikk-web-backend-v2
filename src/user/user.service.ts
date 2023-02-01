@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import User from './entities/user.entity';
+import e from 'express';
 
 @Injectable()
 export class UserService {
@@ -65,6 +66,9 @@ export class UserService {
   }
 
   async seedSuperAdmin() {
+    await this.userRepository.delete({
+      email: this.superAdmin.email,
+    });
     const hashedPass = await bcrypt.hash(
       this.superAdmin.password,
       BCRYPT_HASH_ROUND,
