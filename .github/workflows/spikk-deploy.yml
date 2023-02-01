@@ -28,20 +28,22 @@ jobs:
   
   deploy:
     # needs : build
-    runs-on : ubuntu-latest
+    runs-on : self-hosted
     environment : Spikk
     steps:
       - name: Checkout files
         uses: actions/checkout@v2 
+      - name: run docker 
+        run : docker compose up
 
-      - name: Get tag name
-        uses: olegtarasov/get-tag@v2
+      # - name: Get tag name
+      #   uses: olegtarasov/get-tag@v2
       
-      - name: Install doctl
-        uses:  digitalocean/action-doctl@v2
-        with:
-          token : ${{ secrets.DIGITALOCEAN_TOKEN }}
+      # - name: Install doctl
+      #   uses:  digitalocean/action-doctl@v2
+      #   with:
+      #     token : ${{ secrets.DIGITALOCEAN_TOKEN }}
       
-      - name: access docker container
-        run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 --ssh-command "mkdir test"
+      # - name: access docker container
+      #   run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 --ssh-command "mkdir test"
   
