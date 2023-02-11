@@ -3,31 +3,8 @@ on:
   push:
     branches:
       - "master"
-jobs:
-  # build:
-  #   runs-on: ubuntu-latest
-  #   environment: Spikk
-  #   steps:  
-  #     - name: Checkout files
-  #       uses: actions/checkout@v2
-  #     -
-  #       name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
-  #     -
-  #       name: Login to Docker Hub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     -
-  #       name: Build and push
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         push: true
-  #         tags: kastroud/spikk-web-backend
-  
+jobs:  
   deploy:
-    # needs : build
     runs-on : self-hosted
     environment : Spikk
     steps:
@@ -38,14 +15,4 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > .env
       - name: run docker 
         run : docker-compose up -d
-      # - name: Get tag name
-      #   uses: olegtarasov/get-tag@v2
-      
-      # - name: Install doctl
-      #   uses:  digitalocean/action-doctl@v2
-      #   with:
-      #     token : ${{ secrets.DIGITALOCEAN_TOKEN }}
-      
-      # - name: access docker container
-      #   run: doctl compute ssh ubuntu-s-1vcpu-512mb-10gb-nyc1-01 --ssh-command "mkdir test"
   
