@@ -51,6 +51,8 @@ services:
       - 3306:3306
     networks:
       - db
+    volumes:
+      - mysql:/var/lib/mysql
 
   phpmyadmin:
     depends_on:
@@ -60,6 +62,8 @@ services:
       - 8080:80
     environment:
       - PMA_ARBITRARY=1
+volumes:
+  mysql:
 networks:
   db:
     driver: bridge

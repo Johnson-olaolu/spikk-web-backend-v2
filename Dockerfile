@@ -18,5 +18,8 @@ COPY . .
 # Creates a "dist" folder with the production build
 RUN yarn build
 
+RUN yarn spikk-cli seed:constants
+RUN yarn spikk-cli seed:super-admin
+
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]
