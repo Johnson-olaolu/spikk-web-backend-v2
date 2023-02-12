@@ -47,6 +47,7 @@ services:
       MYSQL_PASSWORD: admin
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_USER: spikk_admin
+    restart: always
     ports:
       - 3306:3306
     networks:
